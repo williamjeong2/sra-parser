@@ -1,5 +1,6 @@
 FROM ubuntu:18.04
 ENV PYTHONUNBUFFERED=0
+LABEL org.opencontainers.image.source https://github.com/williamjeong2/sra-parser
 
 # We need wget to set up the PPA and xvfb to have a virtual screen and unzip to install the Chromedriver
 RUN apt-get --quiet update && apt-get --quiet install -y wget xvfb unzip curl gnupg uuid-runtime git
