@@ -13,7 +13,10 @@
 # Usage
 
 ```bash
-docker run --rm -v $PWD:/home ghcr.io/williamjeong2/sra-parser:main --file SRR_Acc_List.txt --out data/
+docker run --rm -v $PWD:/home \
+    ghcr.io/williamjeong2/sra-parser:main \
+    --file SRR_Acc_List.txt \
+    --out data/
 ```
 
 1. 현재 디렉토리에 엔터로 구분된 다운받고자 하는 `SRR_Acc_List.txt`가 있어야 함. 
