@@ -16,7 +16,7 @@ RUN rm -rf /etc/apt/sources.list.d/google.list
 
 # Install chromedriver
 RUN wget -O /tmp/chromedriver.zip http://chromedriver.storage.googleapis.com/`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE`/chromedriver_linux64.zip
-RUN unzip /tmp/chromedriver.zip chromedriver -d /home; exit 0
+RUN unzip /tmp/chromedriver.zip chromedriver -d /root; exit 0
 
 # Install python3 pip selenium
 RUN apt-get install -y python3 python3-pip
@@ -45,9 +45,9 @@ RUN printf '/libs/cloud/report_instance_identity = "true"\n' >> /root/.ncbi/user
 RUN printf '/libs/cloud/accept_aws_charges = "true"\n/libs/cloud/accept_gcp_charges = "true"\n' >> /root/.ncbi/user-settings.mkfg
 ENV PATH=/usr/local/ncbi/sra-tools/bin:${PATH}
 
-COPY SRA_parser.py /home/SRA_parser.py
+COPY SRA_parser.py /root/SRA_parser.py
 
 RUN apt-get update && rm -rf /var/lib/apt/lists/*
 WORKDIR /home
 
-ENTRYPOINT ["python3", "/home/SRA_parser.py"]
+ENTRYPOINT ["python3", "/root/SRA_parser.py"]

@@ -22,16 +22,16 @@ def main(file_path, save_path):
     chrome_options.add_argument('--no-sandbox')
     prefs = {'download.default_directory' : str(save_path)}
     chrome_options.add_experimental_option('prefs', prefs)
-    path_chrome = './chromedriver'
+    path_chrome = '/root/chromedriver'
     driver = webdriver.Chrome(path_chrome, chrome_options=chrome_options)
 
-    lines = open(file_path, 'r').read().split('\n')
+    lines = open("/home/" + file_path, 'r').read().split('\n')
     for each_line in lines:
         # skip empty line
         if each_line == "":
             continue
         # If the file is already prepared, skip
-        if os.path.isfile(os.getcwd() + "/" + save_path + each_line + ".1"):
+        if os.path.isfile("/home/" + save_path + each_line + ".1"):
             print(each_line+" is already existed.")
             continue
         URL = 'https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?run=' + each_line
@@ -49,7 +49,7 @@ def main(file_path, save_path):
             driver.find_element_by_xpath('//*[@id="sra-viewer-app"]/div[4]/div[1]/div/table/tbody/tr[3]/td[2]/a').click() # ERR
         
         time.sleep(300)
-    open(file_path, 'r').close()
+    open("/home/" + file_path, 'r').close()
 
 
 def get_arguments():
@@ -66,9 +66,9 @@ def get_arguments():
 if __name__ == '__main__':
     file_path, save_path = get_arguments()
     main(file_path, save_path)
-    os.system('ls '+save_path+' | while read result;\
+    os.system('ls /home/'+save_path+' | while read result;\
         do\
-            fasterq-dump '+save_path+'$result --split-files -O '+save_path+' -e '+os.cpu_count()+ ' -p;\
+            fasterq-dump /home/'+save_path+'$result --split-files -O /home/'+save_path+' -e '+os.cpu_count()+ ' -p;\
                 echo $result;\
         done')
     sys.exit()
