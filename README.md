@@ -12,6 +12,9 @@
 
 # Usage
 
+1. 현재 디렉토리에 엔터로 구분된 다운받고자 하는 `SRR_Acc_List.txt`가 있어야 함. 
+    1. 한줄에 한 SRR, ERR 넘버가 있는 파일
+2. 아래 명령어 실행
 ```bash
 docker run --rm -v $PWD:/home \
     ghcr.io/williamjeong2/sra-parser:main \
@@ -19,7 +22,5 @@ docker run --rm -v $PWD:/home \
     --out data/
 ```
 
-1. 현재 디렉토리에 엔터로 구분된 다운받고자 하는 `SRR_Acc_List.txt`가 있어야 함. 
-    1. 한줄에 한 SRR, ERR 넘버가 있는 파일
-2. 다운받고 있는 파일이 화면에 출력되며 다운이 완료되면 프로그램이 종료됨.
-3. 다운받은 SRA 파일들은 `/data` 디렉토리에서 확인 가능.
+3. 다운받고 있는 파일이 화면에 출력되며 다운이 완료되면 프로그램이 종료됨.
+4. 다운받은 SRA 파일들은 `/data` 디렉토리에서 확인 가능.
