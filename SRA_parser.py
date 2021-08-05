@@ -14,13 +14,14 @@ import argparse
 import os.path
 import os
 import sys
+import time
 
 def main(file_path, save_path):
     
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
-    prefs = {'download.default_directory' : str(save_path)}
+    prefs = {'download.default_directory' : str("/home/" + save_path)}
     chrome_options.add_experimental_option('prefs', prefs)
     path_chrome = '/root/chromedriver'
     driver = webdriver.Chrome(path_chrome, chrome_options=chrome_options)
@@ -47,8 +48,9 @@ def main(file_path, save_path):
             driver.find_element_by_xpath('//*[@id="sra-viewer-app"]/div[4]/div[1]/div/table/tbody/tr[1]/td[4]/a').click() # SRA
         if each_line.find("ERR") >= 0:
             driver.find_element_by_xpath('//*[@id="sra-viewer-app"]/div[4]/div[1]/div/table/tbody/tr[3]/td[2]/a').click() # ERR
-        
-        time.sleep(300)
+
+        while not os.path.exists("/home/" + save_path + each_line + ".1"):
+            time.sleep(1)
     open("/home/" + file_path, 'r').close()
 
 
@@ -68,7 +70,7 @@ if __name__ == '__main__':
     main(file_path, save_path)
     os.system('ls /home/'+save_path+' | while read result;\
         do\
-            fasterq-dump /home/'+save_path+'$result --split-files -O /home/'+save_path+' -e '+os.cpu_count()+ ' -p;\
+            fasterq-dump /home/'+save_path+'$result --split-files -O /home/'+save_path+' -e '+str(os.cpu_count())+ ' -p;\
                 echo $result;\
         done')
     sys.exit()
