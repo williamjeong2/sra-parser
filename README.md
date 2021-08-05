@@ -2,7 +2,7 @@
 
 ### TODO
 
-- [ ]  다운로드 효율을 위해서 다운로드가 끝나면 다음 파일 다운받도록 수정 필요(현재는 한 파일당 5분 fix 상태)
+- [x]  다운로드 효율을 위해서 다운로드가 끝나면 다음 파일 다운받도록 수정 필요(현재는 한 파일당 5분 fix 상태)
 
 # Requirement
 
@@ -16,7 +16,8 @@
     1. 한줄에 한 SRR, ERR 넘버가 있는 파일
 2. 아래 명령어 실행
 ```bash
-docker run --rm -v $PWD:/home \
+docker run --rm \
+    -v $PWD:/home:rw -v $PWD/data:/home/data:rw \
     ghcr.io/williamjeong2/sra-parser:main \
     --file SRR_Acc_List.txt \
     --out data/
