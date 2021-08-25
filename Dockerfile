@@ -29,9 +29,9 @@ ARG NGS_BRANCH=master
 ARG VDB_BRANCH=master
 ARG SRA_BRANCH=master
 ARG BUILD_STYLE=--without-debug
-RUN git clone -b ${NGS_BRANCH} --depth 1 https://github.com/ncbi/ngs.git && \
-    git clone -b ${VDB_BRANCH} --depth 1 https://github.com/ncbi/ncbi-vdb.git && \
-    git clone -b ${SRA_BRANCH} --depth 1 https://github.com/ncbi/sra-tools.git
+RUN git clone -b ${NGS_BRANCH} --depth 1 https://github.com/ncbi/ngs.git
+RUN git clone -b ${VDB_BRANCH} --depth 1 https://github.com/ncbi/ncbi-vdb.git
+RUN git clone -b ${SRA_BRANCH} --depth 1 https://github.com/ncbi/sra-tools.git
 WORKDIR /ncbi-vdb
 RUN ./configure ${BUILD_STYLE} && make -s >/dev/null 2>&1 || { echo "make failed"; exit 1; }
 WORKDIR /ngs
