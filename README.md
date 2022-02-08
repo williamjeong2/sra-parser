@@ -3,11 +3,11 @@
 ### TODO
 
 - [x]  ~~다운로드 효율을 위해서 다운로드가 끝나면 다음 파일 다운받도록 수정 필요(현재는 한 파일당 5분 fix 상태)~~
-
+- [x] ~~다운로드 중 끊어지거나 임의로 종료한 경우 다시 다운받더라도 오류가 나지 않도록 수정~~
 # Requirement
 
 - Docker
-- SRR_Acc_list.txt
+- `SRR_Acc_list.txt`
     - in SRR runner
 
 # Usage
