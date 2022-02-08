@@ -38,7 +38,7 @@ jobs:
       
       - 
         name: Build image
-        run: docker build . --tag $IMAGE_NAME --label "runnumber=${GIRHUB_RUN_ID}"
+        run: docker build --no-cache . --tag $IMAGE_NAME --label "runnumber=${GIRHUB_RUN_ID}"
         
       - 
         name: Log in to registry
