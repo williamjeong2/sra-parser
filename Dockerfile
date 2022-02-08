@@ -1,5 +1,5 @@
 FROM ubuntu:bionic AS build-base
-RUN apt-get --quiet update && apt-get --quiet install -y make cmake gcc g++ flex bison uuid-runtime
+RUN apt-get --quiet update && apt-get --quiet install -y make cmake gcc g++ flex bison uuid-runtime git
 
 FROM build-base as build
 # Install sratoolkit
