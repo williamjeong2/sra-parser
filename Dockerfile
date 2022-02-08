@@ -1,4 +1,30 @@
+FROM ubuntu:bionic AS build-base
+RUN apt-get --quiet update && apt-get --quiet install -y make cmake gcc g++ flex bison uuid-runtime
+
+FROM build-base as build
+# Install sratoolkit
+ARG NGS_BRANCH=master
+ARG VDB_BRANCH=master
+ARG SRA_BRANCH=master
+ARG BUILD_STYLE=--without-debug
+RUN git clone -b ${NGS_BRANCH} --depth 1 https://github.com/ncbi/ngs.git
+RUN git clone -b ${VDB_BRANCH} --depth 1 https://github.com/ncbi/ncbi-vdb.git
+RUN git clone -b ${SRA_BRANCH} --depth 1 https://github.com/ncbi/sra-tools.git
+WORKDIR /ncbi-vdb
+RUN ./configure ${BUILD_STYLE} && make -s >/dev/null 2>&1 || { echo "make failed"; exit 1; }
+WORKDIR /ngs
+RUN ./configure ${BUILD_STYLE} && make -s -C ngs-sdk >/dev/null 2>&1 || { echo "make failed"; exit 1; }
+WORKDIR /sra-tools
+RUN ./configure ${BUILD_STYLE} && make -s >/dev/null 2>&1 || { echo "make failed"; exit 1; }
+RUN make install
+RUN mkdir -p /root/.ncbi
+RUN printf '/LIBS/GUID = "%s"\n' `uuidgen` > /root/.ncbi/user-settings.mkfg
+RUN printf '/libs/cloud/report_instance_identity = "true"\n' >> /root/.ncbi/user-settings.mkfg
+RUN printf '/libs/cloud/accept_aws_charges = "true"\n/libs/cloud/accept_gcp_charges = "true"\n' >> /root/.ncbi/user-settings.mkfg
+
+
 FROM ubuntu:18.04
+# sra-parser
 ENV PYTHONUNBUFFERED=0
 LABEL org.opencontainers.image.source https://github.com/williamjeong2/sra-parser
 
@@ -23,26 +49,9 @@ RUN apt-get install -y python3 python3-pip
 RUN pip3 install selenium xlrd
 SHELL ["/bin/bash", "-c"]
 
-# Install sratoolkit
-RUN apt-get --quiet update && apt-get --quiet install -y make cmake gcc g++ flex bison
-ARG NGS_BRANCH=master
-ARG VDB_BRANCH=master
-ARG SRA_BRANCH=master
-ARG BUILD_STYLE=--without-debug
-RUN git clone -b ${NGS_BRANCH} --depth 1 https://github.com/ncbi/ngs.git
-RUN git clone -b ${VDB_BRANCH} --depth 1 https://github.com/ncbi/ncbi-vdb.git
-RUN git clone -b ${SRA_BRANCH} --depth 1 https://github.com/ncbi/sra-tools.git
-WORKDIR /ncbi-vdb
-RUN ./configure ${BUILD_STYLE} && make -s >/dev/null 2>&1 || { echo "make failed"; exit 1; }
-WORKDIR /ngs
-RUN ./configure ${BUILD_STYLE} && make -s -C ngs-sdk >/dev/null 2>&1 || { echo "make failed"; exit 1; }
-WORKDIR /sra-tools
-RUN ./configure ${BUILD_STYLE} && make -s >/dev/null 2>&1 || { echo "make failed"; exit 1; }
-RUN make install
-RUN mkdir -p /root/.ncbi
-RUN printf '/LIBS/GUID = "%s"\n' `uuidgen` > /root/.ncbi/user-settings.mkfg
-RUN printf '/libs/cloud/report_instance_identity = "true"\n' >> /root/.ncbi/user-settings.mkfg
-RUN printf '/libs/cloud/accept_aws_charges = "true"\n/libs/cloud/accept_gcp_charges = "true"\n' >> /root/.ncbi/user-settings.mkfg
+COPY --from=build  /etc/ncbi /etc/ncbi
+COPY --from=build /usr/local/ncbi /usr/local/ncbi
+COPY --from=build /root/.ncbi /root/.ncbi
 ENV PATH=/usr/local/ncbi/sra-tools/bin:${PATH}
 
 COPY SRA_parser.py /root/SRA_parser.py
