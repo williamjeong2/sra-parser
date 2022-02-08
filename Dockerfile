@@ -1,62 +1,57 @@
-FROM ubuntu:bionic AS build-base
-RUN apt-get --quiet update && apt-get --quiet install -y make cmake gcc g++ flex bison uuid-runtime git
+FROM ncbi/sra-tools:2.11.3
+RUN apk update && \
+    apk upgrade && \
+    apk add bash
+RUN mkdir -p /etc/ncbi/config/ && \
+    cp /root/.ncbi/user-settings.mkfg /etc/ncbi/config/
 
-FROM build-base as build
-# Install sratoolkit
-ARG NGS_BRANCH=master
-ARG VDB_BRANCH=master
-ARG SRA_BRANCH=master
-ARG BUILD_STYLE=--without-debug
-RUN git clone -b ${NGS_BRANCH} --depth 1 https://github.com/ncbi/ngs.git
-RUN git clone -b ${VDB_BRANCH} --depth 1 https://github.com/ncbi/ncbi-vdb.git
-RUN git clone -b ${SRA_BRANCH} --depth 1 https://github.com/ncbi/sra-tools.git
-WORKDIR /ncbi-vdb
-RUN ./configure ${BUILD_STYLE} && make -s >/dev/null 2>&1 || { echo "make failed"; exit 1; }
-WORKDIR /ngs
-RUN ./configure ${BUILD_STYLE} && make -s -C ngs-sdk >/dev/null 2>&1 || { echo "make failed"; exit 1; }
-WORKDIR /sra-tools
-RUN ./configure ${BUILD_STYLE} && make -s >/dev/null 2>&1 || { echo "make failed"; exit 1; }
-RUN make install
-RUN mkdir -p /root/.ncbi
-RUN printf '/LIBS/GUID = "%s"\n' `uuidgen` > /root/.ncbi/user-settings.mkfg
-RUN printf '/libs/cloud/report_instance_identity = "true"\n' >> /root/.ncbi/user-settings.mkfg
-RUN printf '/libs/cloud/accept_aws_charges = "true"\n/libs/cloud/accept_gcp_charges = "true"\n' >> /root/.ncbi/user-settings.mkfg
-
-
-FROM ubuntu:18.04
-# sra-parser
-ENV PYTHONUNBUFFERED=0
 LABEL org.opencontainers.image.source https://github.com/williamjeong2/sra-parser
+RUN echo "http://dl-4.alpinelinux.org/alpine/v3.14/main" >> /etc/apk/repositories && \
+    echo "http://dl-4.alpinelinux.org/alpine/v3.14/community" >> /etc/apk/repositories
+RUN apk update && apk add --no-cache bash \
+        alsa-lib \
+        at-spi2-atk \
+        atk \
+        bash \
+        cairo \
+        cups-libs \
+        dbus-libs \
+        eudev-libs \
+        expat \
+        flac \
+        gcc \
+        gdk-pixbuf \
+        glib \
+        libc-dev \
+        libffi-dev \
+        libgcc \
+        libjpeg-turbo \
+        libpng \
+        libwebp \
+        libx11 \
+        libxcomposite \
+        libxdamage \
+        libxext \
+        libxfixes \
+        tzdata \
+        libexif \
+        udev \
+        xvfb \
+        zlib-dev \
+        openssl-dev \
+        python3 \
+        python3-dev
+RUN apk add --update py3-pip
+RUN apk update && apk add py3-pip
 
-# We need wget to set up the PPA and xvfb to have a virtual screen and unzip to install the Chromedriver
-RUN apt-get --quiet update && apt-get --quiet install -y wget xvfb unzip curl gnupg uuid-runtime git
+RUN pip3 install --upgrade pip
+RUN pip3 install selenium webdriver_manager
+RUN apk add chromium chromium-chromedriver
+RUN pip3 install -U webdriver_manager
 
-# Set up the Chrome PPA
-RUN echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list
-RUN wget https://dl.google.com/linux/linux_signing_key.pub
-RUN apt-key add linux_signing_key.pub
-
-# Update the package list and install chrome
-RUN apt-get update && apt-get install -y google-chrome-stable
-RUN rm -rf /etc/apt/sources.list.d/google.list
-
-# Install chromedriver
-RUN wget -O /tmp/chromedriver.zip http://chromedriver.storage.googleapis.com/`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE`/chromedriver_linux64.zip
-RUN unzip /tmp/chromedriver.zip chromedriver -d /root; exit 0
-
-# Install python3 pip selenium
-RUN apt-get install -y python3 python3-pip
-RUN pip3 install selenium xlrd
-SHELL ["/bin/bash", "-c"]
-
-COPY --from=build  /etc/ncbi /etc/ncbi
-COPY --from=build /usr/local/ncbi /usr/local/ncbi
-COPY --from=build /root/.ncbi /root/.ncbi
-ENV PATH=/usr/local/ncbi/sra-tools/bin:${PATH}
+RUN printf '/LIBS/GUID = "%s"\n' `cat /proc/sys/kernel/random/uuid` > /root/.ncbi/user-settings.mkfg && \
+    printf '/libs/cloud/report_instance_identity = "true"\n' >> /root/.ncbi/user-settings.mkfg
 
 COPY SRA_parser.py /root/SRA_parser.py
-
-RUN apt-get update && rm -rf /var/lib/apt/lists/*
 WORKDIR /home
-
 ENTRYPOINT ["python3", "/root/SRA_parser.py"]
