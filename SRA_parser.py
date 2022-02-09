@@ -49,9 +49,9 @@ def main(file_path, save_path):
         # driver.find_element_by_xpath('//*[@id="sra-viewer-app"]/ul/li[4]/a/span').click() # deprecated
         # click link
         if each_line.find("SRR") >= 0:
-            driver.find_element_by_xpath('//*[@id="sra-viewer-app"]/div[4]/div[1]/div/table/tbody/tr[1]/td[4]/a').click() # SRA
+            driver.find_element(By.XPATH, '//*[@id="sra-viewer-app"]/div[4]/div[1]/div/table/tbody/tr[1]/td[4]/a').click() # SRA
         if each_line.find("ERR") >= 0:
-            driver.find_element_by_xpath('//*[@id="sra-viewer-app"]/div[4]/div[1]/div/table/tbody/tr[3]/td[2]/a').click() # ERR
+            driver.find_element(By.XPATH, '//*[@id="sra-viewer-app"]/div[4]/div[1]/div/table/tbody/tr[3]/td[2]/a').click() # ERR
 
         while not os.path.exists("/home/" + save_path + each_line + ".1"):
             time.sleep(1)
