@@ -75,7 +75,7 @@ if __name__ == '__main__':
     os.system('ls /home/'+save_path+' | while read result;\
         do\
             if [[ $result != *.fastq ]] ;\
-            then\   
+            then \
                 fasterq-dump /home/'+save_path+'$result --split-files -O /home/'+save_path+' -e '+str(os.cpu_count())+ ' -p;\
                 echo $result; fi\
         done')
