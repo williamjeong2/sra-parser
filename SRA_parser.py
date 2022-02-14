@@ -18,6 +18,7 @@ import os.path
 import os
 import sys
 import time
+from tqdm import tqdm
 
 def main(file_path, save_path):
     
@@ -30,6 +31,8 @@ def main(file_path, save_path):
     driver = webdriver.Chrome(options=chrome_options)
 
     lines = open("/home/" + file_path, 'r').read().split('\n')
+    pbar = tqdm(total=len(lines), file=sys.stdout)
+    
     for each_line in lines:
         # skip empty line
         if each_line == "":
@@ -55,6 +58,8 @@ def main(file_path, save_path):
 
         while not os.path.exists("/home/" + save_path + each_line + ".1"):
             time.sleep(1)
+        pbar.update(1)
+    pbar.close()
     open("/home/" + file_path, 'r').close()
 
 

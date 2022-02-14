@@ -5,6 +5,7 @@ RUN apk update && \
 RUN mkdir -p /etc/ncbi/config/ && \
     cp /root/.ncbi/user-settings.mkfg /etc/ncbi/config/
 
+ENV PYTHONUNBUFFERED=0
 LABEL org.opencontainers.image.source https://github.com/williamjeong2/sra-parser
 RUN echo "http://dl-4.alpinelinux.org/alpine/v3.14/main" >> /etc/apk/repositories && \
     echo "http://dl-4.alpinelinux.org/alpine/v3.14/community" >> /etc/apk/repositories
@@ -45,7 +46,7 @@ RUN apk add --update py3-pip
 RUN apk update && apk add py3-pip
 
 RUN pip3 install --upgrade pip
-RUN pip3 install selenium webdriver_manager
+RUN pip3 install selenium webdriver_manager tqdm
 RUN apk add chromium chromium-chromedriver
 RUN pip3 install -U webdriver_manager
 
