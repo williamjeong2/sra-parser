@@ -31,20 +31,24 @@ def main(file_path, save_path):
     driver = webdriver.Chrome(options=chrome_options)
 
     lines = open("/home/" + file_path, 'r').read().split('\n')
-    pbar = tqdm(total=len(lines), file=sys.stdout)
+    pbar = tqdm(lines, total=len(lines), file=sys.stdout)
     
-    for each_line in lines:
+    for each_line in pbar:
         # skip empty line
         if each_line == "":
+            continue
+        if ("SRR" or "ERR") not in each_line:
             continue
         # If the file is already prepared, skip
         if os.path.isfile("/home/" + save_path + each_line + ".1"):
             print(each_line+" is already existed.")
             continue
+        if os.path.isfile("/home/" + save_path + each_line):
+            print(each_line+" is already existed.")
+            continue
         URL = 'https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?run=' + each_line
 
         print('Downloading File : {}'.format(each_line))
-        # driver = webdriver.Safari()
         # move to url address
         driver.get(url=URL)
         # data access
@@ -52,12 +56,27 @@ def main(file_path, save_path):
         # driver.find_element_by_xpath('//*[@id="sra-viewer-app"]/ul/li[4]/a/span').click() # deprecated
         # click link
         if each_line.find("SRR") >= 0:
-            driver.find_element(By.XPATH, '//*[@id="sra-viewer-app"]/div[4]/div[1]/div/table/tbody/tr[1]/td[4]/a').click() # SRA
+            try:
+                link = driver.find_element(By.XPATH, '//*[@id="sra-viewer-app"]/div[4]/div[1]/div/table/tbody/tr[2]/td[2]/a')
+                link.click() # AWS SRA
+            except:
+                link = driver.find_element(By.XPATH, '//*[@id="sra-viewer-app"]/div[4]/div[1]/div/table/tbody/tr[1]/td[4]/a')
+                link.click() # NCBI SRA
+            dl_file_name = link.text.rsplit('/', 1)[1]
+            while not os.path.exists("/home/" + save_path + dl_file_name):
+                time.sleep(1)
         if each_line.find("ERR") >= 0:
-            driver.find_element(By.XPATH, '//*[@id="sra-viewer-app"]/div[4]/div[1]/div/table/tbody/tr[3]/td[2]/a').click() # ERR
+            try:
+                link = driver.find_element(By.XPATH, '//*[@id="sra-viewer-app"]/div[4]/div[1]/div/table/tbody/tr[2]/td[2]/a')
+                link.click() # AWS ERR
+            except:
+                link = driver.find_element(By.XPATH, '//*[@id="sra-viewer-app"]/div[4]/div[1]/div/table/tbody/tr[3]/td[2]/a')
+                link.click() # NCBI ERR
+            dl_file_name = link.text.rsplit('/', 1)[1]
+            while not os.path.exists("/home/" + save_path + dl_file_name):
+                time.sleep(1)
 
-        while not os.path.exists("/home/" + save_path + each_line + ".1"):
-            time.sleep(1)
+        pbar.set_description("Processing %s" % each_line)
         pbar.update(1)
     pbar.close()
     open("/home/" + file_path, 'r').close()
