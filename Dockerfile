@@ -34,6 +34,7 @@ RUN apk update && apk add --no-cache bash \
         libxdamage \
         libxext \
         libxfixes \
+        pigz \ 
         tzdata \
         libexif \
         udev \
