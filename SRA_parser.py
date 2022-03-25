@@ -102,7 +102,7 @@ if __name__ == '__main__':
             then \
                 fasterq-dump /home/' + save_path + '$result --split-files -O /home/' + save_path + ' -e '+str(os.cpu_count())+ ' -p;\
                 ls /home/' + save_path + '*.fastq | while read fname;\
-                    do pigz -9 -p ' + str(os.cpu_count()) + '$fname; \
+                    do pigz -9 -p ' + str(os.cpu_count()) + ' $fname; \
                     done; \
                 echo $result; \
             fi\
